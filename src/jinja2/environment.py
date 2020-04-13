@@ -113,19 +113,20 @@ def fail_for_missing_callable(thing, name):
 
 def _environment_sanity_check(environment):
     """Perform a sanity check on the environment."""
-    assert issubclass(
+    if not issubclass(
         environment.undefined, Undefined
-    ), "undefined must be a subclass of undefined because filters depend on it."
-    assert (
-        environment.block_start_string
-        != environment.variable_start_string
-        != environment.comment_start_string
-    ), "block, variable and comment start strings must be different"
-    assert environment.newline_sequence in {
+    ):
+        raise AssertionError("undefined must be a subclass of undefined because filters depend on it.")
+    if (
+        environment.block_start_string == environment.variable_start_string
+    ):
+        raise AssertionError("block, variable and comment start strings must be different")
+    if environment.newline_sequence not in {
         "\r",
         "\r\n",
         "\n",
-    }, "newline_sequence set to unknown line ending string."
+    }:
+        raise AssertionError("newline_sequence set to unknown line ending string.")
     return environment
 
 

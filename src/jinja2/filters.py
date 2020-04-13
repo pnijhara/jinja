@@ -670,8 +670,10 @@ def do_truncate(env, s, length=255, killwords=False, end="...", leeway=None):
     """
     if leeway is None:
         leeway = env.policies["truncate.leeway"]
-    assert length >= len(end), f"expected length >= {len(end)}, got {length}"
-    assert leeway >= 0, f"expected leeway >= 0, got {leeway}"
+    if length < len(end):
+        raise AssertionError(f"expected length >= {len(end)}, got {length}")
+    if leeway < 0:
+        raise AssertionError(f"expected leeway >= 0, got {leeway}")
     if len(s) <= length + leeway:
         return s
     if killwords:

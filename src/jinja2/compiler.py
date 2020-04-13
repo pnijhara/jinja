@@ -663,7 +663,8 @@ class CodeGenerator(NodeVisitor):
     # -- Statement Visitors
 
     def visit_Template(self, node, frame=None):
-        assert frame is None, "no root frame allowed"
+        if frame is not None:
+            raise AssertionError("no root frame allowed")
         eval_ctx = EvalContext(self.environment, self.name)
 
         from .runtime import exported
