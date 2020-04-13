@@ -71,7 +71,7 @@ to be closed is 'for'.
   line 42""",
         )
 
-    def test_pickleable_syntax_error(self, fs_env):
+    def test_pickleable_syntax_error(self, _fs_env):
         original = TemplateSyntaxError("bad template", 42, "test", "test.txt")
         unpickled = pickle.loads(pickle.dumps(original))
         assert str(original) == str(unpickled)

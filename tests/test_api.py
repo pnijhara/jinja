@@ -81,7 +81,7 @@ class TestExtendedAPI:
         t = e.from_string("{{ value }}")
         assert t.render(value="hello") == "{{ 'hello' }}"
 
-    def test_cycler(self, env):
+    def test_cycler(self, _env):
         items = 1, 2, 3
         c = Cycler(*items)
         for item in items + items:

@@ -231,7 +231,7 @@ class TestAsyncIncludes:
             )
             assert t.render() == ""
 
-    def test_context_include_with_overrides(self, test_env_async):
+    def test_context_include_with_overrides(self, _test_env_async):
         env = Environment(
             loader=DictLoader(
                 dict(

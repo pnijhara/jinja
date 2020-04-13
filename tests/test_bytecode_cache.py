@@ -28,7 +28,7 @@ class MockMemcached:
     value = None
     timeout = None
 
-    def get(self, key):
+    def get(self, _key):
         return self.value
 
     def set(self, key, value, timeout=None):

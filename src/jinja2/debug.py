@@ -214,7 +214,7 @@ elif platform.python_implementation() == "PyPy":
         import tputil
     except ImportError:
         # Without tproxy support, use the original traceback.
-        def tb_set_next(tb, tb_next):
+        def tb_set_next(tb, _tb_next):
             return tb
 
     else:

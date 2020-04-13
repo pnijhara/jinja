@@ -1476,7 +1476,7 @@ class CodeGenerator(NodeVisitor):
             self.visit(item.value, frame)
         self.write("}")
 
-    def binop(operator, interceptable=True):  # noqa: B902
+    def binop(operator, _interceptable=True):  # noqa: B902
         @optimizeconst
         def visitor(self, node, frame):
             if (
@@ -1496,7 +1496,7 @@ class CodeGenerator(NodeVisitor):
 
         return visitor
 
-    def uaop(operator, interceptable=True):  # noqa: B902
+    def uaop(operator, _interceptable=True):  # noqa: B902
         @optimizeconst
         def visitor(self, node, frame):
             if (
@@ -1687,7 +1687,7 @@ class CodeGenerator(NodeVisitor):
         self.visit(node.expr, frame)
         self.write(")")
 
-    def visit_EnvironmentAttribute(self, node, frame):
+    def visit_EnvironmentAttribute(self, node, _frame):
         self.write("environment." + node.name)
 
     def visit_ExtensionAttribute(self, node, frame):
@@ -1696,19 +1696,19 @@ class CodeGenerator(NodeVisitor):
     def visit_ImportedName(self, node, frame):
         self.write(self.import_aliases[node.importname])
 
-    def visit_InternalName(self, node, frame):
+    def visit_InternalName(self, node, _frame):
         self.write(node.name)
 
-    def visit_ContextReference(self, node, frame):
+    def visit_ContextReference(self, _node, _frame):
         self.write("context")
 
-    def visit_DerivedContextReference(self, node, frame):
+    def visit_DerivedContextReference(self, _node, frame):
         self.write(self.derive_context(frame))
 
-    def visit_Continue(self, node, frame):
+    def visit_Continue(self, node, _frame):
         self.writeline("continue", node)
 
-    def visit_Break(self, node, frame):
+    def visit_Break(self, node, _frame):
         self.writeline("break", node)
 
     def visit_Scope(self, node, frame):
