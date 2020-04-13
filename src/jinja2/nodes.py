@@ -392,7 +392,8 @@ class Expr(Node):
 
     abstract = True
 
-    def as_const(self, eval_ctx=None):
+    @staticmethod
+    def as_const(eval_ctx=None):
         """Return the value of the expression as constant or raise
         :exc:`Impossible` if this was not possible.
 
@@ -405,7 +406,8 @@ class Expr(Node):
         """
         raise Impossible()
 
-    def can_assign(self):
+    @staticmethod
+    def can_assign():
         """Check if it's possible to assign something to this node."""
         return False
 

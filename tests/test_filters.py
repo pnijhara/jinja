@@ -27,19 +27,23 @@ class Magic2:
 
 
 class TestFilter:
-    def test_filter_calling(self, env):
+    @staticmethod
+    def test_filter_calling(env):
         rv = env.call_filter("sum", [1, 2, 3])
         assert rv == 6
 
-    def test_capitalize(self, env):
+    @staticmethod
+    def test_capitalize(env):
         tmpl = env.from_string('{{ "foo bar"|capitalize }}')
         assert tmpl.render() == "Foo bar"
 
-    def test_center(self, env):
+    @staticmethod
+    def test_center(env):
         tmpl = env.from_string('{{ "foo"|center(9) }}')
         assert tmpl.render() == "   foo   "
 
-    def test_default(self, env):
+    @staticmethod
+    def test_default(env):
         tmpl = env.from_string(
             "{{ missing|default('no') }}|{{ false|default('no') }}|"
             "{{ false|default('no', true) }}|{{ given|default('no') }}"
@@ -60,7 +64,8 @@ class TestFilter:
         out = t.render(foo={"aa": 0, "b": 1, "c": 2, "AB": 3})
         assert out == expect
 
-    def test_batch(self, env):
+    @staticmethod
+    def test_batch(env):
         tmpl = env.from_string("{{ foo|batch(3)|list }}|{{ foo|batch(3, 'X')|list }}")
         out = tmpl.render(foo=list(range(10)))
         assert out == (
@@ -68,7 +73,8 @@ class TestFilter:
             "[[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 'X', 'X']]"
         )
 
-    def test_slice(self, env):
+    @staticmethod
+    def test_slice(env):
         tmpl = env.from_string("{{ foo|slice(3)|list }}|{{ foo|slice(3, 'X')|list }}")
         out = tmpl.render(foo=list(range(10)))
         assert out == (
@@ -76,7 +82,8 @@ class TestFilter:
             "[[0, 1, 2, 3], [4, 5, 6, 'X'], [7, 8, 9, 'X']]"
         )
 
-    def test_escape(self, env):
+    @staticmethod
+    def test_escape(env):
         tmpl = env.from_string("""{{ '<">&'|escape }}""")
         out = tmpl.render()
         assert out == "&lt;&#34;&gt;&amp;"
@@ -89,7 +96,8 @@ class TestFilter:
         out = tmpl.render(foo="  ..stays..", chars=chars)
         assert out == expect
 
-    def test_striptags(self, env):
+    @staticmethod
+    def test_striptags(env):
         tmpl = env.from_string("""{{ foo|striptags }}""")
         out = tmpl.render(
             foo='  <p>just a small   \n <a href="#">'
@@ -98,7 +106,8 @@ class TestFilter:
         )
         assert out == "just a small example link to a webpage"
 
-    def test_filesizeformat(self, env):
+    @staticmethod
+    def test_filesizeformat(env):
         tmpl = env.from_string(
             "{{ 100|filesizeformat }}|"
             "{{ 1000|filesizeformat }}|"
@@ -117,7 +126,8 @@ class TestFilter:
             "1000 Bytes|976.6 KiB|953.7 MiB|931.3 GiB"
         )
 
-    def test_filesizeformat_issue59(self, env):
+    @staticmethod
+    def test_filesizeformat_issue59(env):
         tmpl = env.from_string(
             "{{ 300|filesizeformat }}|"
             "{{ 3000|filesizeformat }}|"
@@ -133,7 +143,8 @@ class TestFilter:
             "300 Bytes|3.0 kB|3.0 MB|3.0 GB|3.0 TB|300 Bytes|2.9 KiB|2.9 MiB"
         )
 
-    def test_first(self, env):
+    @staticmethod
+    def test_first(env):
         tmpl = env.from_string("{{ foo|first }}")
         out = tmpl.render(foo=list(range(10)))
         assert out == "0"
@@ -145,11 +156,13 @@ class TestFilter:
         t = env.from_string("{{ value|float }}")
         assert t.render(value=value) == expect
 
-    def test_float_default(self, env):
+    @staticmethod
+    def test_float_default(env):
         t = env.from_string("{{ value|float(default=1.0) }}")
         assert t.render(value="abc") == "1.0"
 
-    def test_format(self, env):
+    @staticmethod
+    def test_format(env):
         tmpl = env.from_string("{{ '%s|%s'|format('a', 'b') }}")
         out = tmpl.render()
         assert out == "a|b"
@@ -204,11 +217,13 @@ class TestFilter:
         t = env.from_string("{{ value|int(base=base) }}")
         assert t.render(value=value, base=base) == expect
 
-    def test_int_default(self, env):
+    @staticmethod
+    def test_int_default(env):
         t = env.from_string("{{ value|int(default=1) }}")
         assert t.render(value="abc") == "1"
 
-    def test_int_special_method(self, env):
+    @staticmethod
+    def test_int_special_method(env):
         class IntIsh:
             def __int__(self):
                 return 42
@@ -216,7 +231,8 @@ class TestFilter:
         t = env.from_string("{{ value|int }}")
         assert t.render(value=IntIsh()) == "42"
 
-    def test_join(self, env):
+    @staticmethod
+    def test_join(env):
         tmpl = env.from_string('{{ [1, 2, 3]|join("|") }}')
         out = tmpl.render()
         assert out == "1|2|3"
@@ -225,34 +241,40 @@ class TestFilter:
         tmpl = env2.from_string('{{ ["<foo>", "<span>foo</span>"|safe]|join }}')
         assert tmpl.render() == "&lt;foo&gt;<span>foo</span>"
 
-    def test_join_attribute(self, env):
+    @staticmethod
+    def test_join_attribute(env):
         User = namedtuple("User", "username")
         tmpl = env.from_string("""{{ users|join(', ', 'username') }}""")
         assert tmpl.render(users=map(User, ["foo", "bar"])) == "foo, bar"
 
-    def test_last(self, env):
+    @staticmethod
+    def test_last(env):
         tmpl = env.from_string("""{{ foo|last }}""")
         out = tmpl.render(foo=list(range(10)))
         assert out == "9"
 
-    def test_length(self, env):
+    @staticmethod
+    def test_length(env):
         tmpl = env.from_string("""{{ "hello world"|length }}""")
         out = tmpl.render()
         assert out == "11"
 
-    def test_lower(self, env):
+    @staticmethod
+    def test_lower(env):
         tmpl = env.from_string("""{{ "FOO"|lower }}""")
         out = tmpl.render()
         assert out == "foo"
 
-    def test_pprint(self, env):
+    @staticmethod
+    def test_pprint(env):
         from pprint import pformat
 
         tmpl = env.from_string("""{{ data|pprint }}""")
         data = list(range(1000))
         assert tmpl.render(data=data) == pformat(data)
 
-    def test_random(self, env, request):
+    @staticmethod
+    def test_random(env, request):
         # restore the random state when the test ends
         state = random.getstate()
         request.addfinalizer(lambda: random.setstate(state))
@@ -268,18 +290,21 @@ class TestFilter:
         for value in expected:
             assert t.render() == value
 
-    def test_reverse(self, env):
+    @staticmethod
+    def test_reverse(env):
         tmpl = env.from_string(
             "{{ 'foobar'|reverse|join }}|{{ [1, 2, 3]|reverse|list }}"
         )
         assert tmpl.render() == "raboof|[3, 2, 1]"
 
-    def test_string(self, env):
+    @staticmethod
+    def test_string(env):
         x = [1, 2, 3, 4, 5]
         tmpl = env.from_string("""{{ obj|string }}""")
         assert tmpl.render(obj=x) == str(x)
 
-    def test_title(self, env):
+    @staticmethod
+    def test_title(env):
         tmpl = env.from_string("""{{ "foo bar"|title }}""")
         assert tmpl.render() == "Foo Bar"
         tmpl = env.from_string("""{{ "foo's bar"|title }}""")
@@ -311,7 +336,8 @@ class TestFilter:
         out = tmpl.render(data=Foo())
         assert out == "Foo-Bar"
 
-    def test_truncate(self, env):
+    @staticmethod
+    def test_truncate(env):
         tmpl = env.from_string(
             '{{ data|truncate(15, true, ">>>") }}|'
             '{{ data|truncate(15, false, ">>>") }}|'
@@ -320,30 +346,35 @@ class TestFilter:
         out = tmpl.render(data="foobar baz bar" * 1000, smalldata="foobar baz bar")
         assert out == "foobar baz b>>>|foobar baz>>>|foobar baz bar"
 
-    def test_truncate_very_short(self, env):
+    @staticmethod
+    def test_truncate_very_short(env):
         tmpl = env.from_string(
             '{{ "foo bar baz"|truncate(9) }}|{{ "foo bar baz"|truncate(9, true) }}'
         )
         out = tmpl.render()
         assert out == "foo bar baz|foo bar baz"
 
-    def test_truncate_end_length(self, env):
+    @staticmethod
+    def test_truncate_end_length(env):
         tmpl = env.from_string('{{ "Joel is a slug"|truncate(7, true) }}')
         out = tmpl.render()
         assert out == "Joel..."
 
-    def test_upper(self, env):
+    @staticmethod
+    def test_upper(env):
         tmpl = env.from_string('{{ "foo"|upper }}')
         assert tmpl.render() == "FOO"
 
-    def test_urlize(self, env):
+    @staticmethod
+    def test_urlize(env):
         tmpl = env.from_string('{{ "foo http://www.example.com/ bar"|urlize }}')
         assert tmpl.render() == (
             'foo <a href="http://www.example.com/" rel="noopener">'
             "http://www.example.com/</a> bar"
         )
 
-    def test_urlize_rel_policy(self):
+    @staticmethod
+    def test_urlize_rel_policy():
         env = Environment()
         env.policies["urlize.rel"] = None
         tmpl = env.from_string('{{ "foo http://www.example.com/ bar"|urlize }}')
@@ -351,7 +382,8 @@ class TestFilter:
             'foo <a href="http://www.example.com/">http://www.example.com/</a> bar'
         )
 
-    def test_urlize_target_parameter(self, env):
+    @staticmethod
+    def test_urlize_target_parameter(env):
         tmpl = env.from_string(
             '{{ "foo http://www.example.com/ bar"|urlize(target="_blank") }}'
         )
@@ -361,7 +393,8 @@ class TestFilter:
             "http://www.example.com/</a> bar"
         )
 
-    def test_wordcount(self, env):
+    @staticmethod
+    def test_wordcount(env):
         tmpl = env.from_string('{{ "foo bar baz"|wordcount }}')
         assert tmpl.render() == "3"
 
@@ -370,23 +403,28 @@ class TestFilter:
         with pytest.raises(UndefinedError):
             t.render()
 
-    def test_block(self, env):
+    @staticmethod
+    def test_block(env):
         tmpl = env.from_string("{% filter lower|escape %}<HEHE>{% endfilter %}")
         assert tmpl.render() == "&lt;hehe&gt;"
 
-    def test_chaining(self, env):
+    @staticmethod
+    def test_chaining(env):
         tmpl = env.from_string("""{{ ['<foo>', '<bar>']|first|upper|escape }}""")
         assert tmpl.render() == "&lt;FOO&gt;"
 
-    def test_sum(self, env):
+    @staticmethod
+    def test_sum(env):
         tmpl = env.from_string("""{{ [1, 2, 3, 4, 5, 6]|sum }}""")
         assert tmpl.render() == "21"
 
-    def test_sum_attributes(self, env):
+    @staticmethod
+    def test_sum_attributes(env):
         tmpl = env.from_string("""{{ values|sum('value') }}""")
         assert tmpl.render(values=[{"value": 23}, {"value": 1}, {"value": 18}]) == "42"
 
-    def test_sum_attributes_nested(self, env):
+    @staticmethod
+    def test_sum_attributes_nested(env):
         tmpl = env.from_string("""{{ values|sum('real.value') }}""")
         assert (
             tmpl.render(
@@ -399,15 +437,18 @@ class TestFilter:
             == "42"
         )
 
-    def test_sum_attributes_tuple(self, env):
+    @staticmethod
+    def test_sum_attributes_tuple(env):
         tmpl = env.from_string("""{{ values.items()|sum('1') }}""")
         assert tmpl.render(values={"foo": 23, "bar": 1, "baz": 18}) == "42"
 
-    def test_abs(self, env):
+    @staticmethod
+    def test_abs(env):
         tmpl = env.from_string("""{{ -1|abs }}|{{ 1|abs }}""")
         assert tmpl.render() == "1|1", tmpl.render()
 
-    def test_round_positive(self, env):
+    @staticmethod
+    def test_round_positive(env):
         tmpl = env.from_string(
             "{{ 2.7|round }}|{{ 2.1|round }}|"
             "{{ 2.1234|round(3, 'floor') }}|"
@@ -415,7 +456,8 @@ class TestFilter:
         )
         assert tmpl.render() == "3.0|2.0|2.123|3.0", tmpl.render()
 
-    def test_round_negative(self, env):
+    @staticmethod
+    def test_round_negative(env):
         tmpl = env.from_string(
             "{{ 21.3|round(-1)}}|"
             "{{ 21.3|round(-1, 'ceil')}}|"
@@ -423,7 +465,8 @@ class TestFilter:
         )
         assert tmpl.render() == "20.0|30.0|20.0", tmpl.render()
 
-    def test_xmlattr(self, env):
+    @staticmethod
+    def test_xmlattr(env):
         tmpl = env.from_string(
             "{{ {'foo': 42, 'bar': 23, 'fish': none, "
             "'spam': missing, 'blub:blub': '<?>'}|xmlattr }}"
@@ -434,27 +477,33 @@ class TestFilter:
         assert 'bar="23"' in out
         assert 'blub:blub="&lt;?&gt;"' in out
 
-    def test_sort1(self, env):
+    @staticmethod
+    def test_sort1(env):
         tmpl = env.from_string("{{ [2, 3, 1]|sort }}|{{ [2, 3, 1]|sort(true) }}")
         assert tmpl.render() == "[1, 2, 3]|[3, 2, 1]"
 
-    def test_sort2(self, env):
+    @staticmethod
+    def test_sort2(env):
         tmpl = env.from_string('{{ "".join(["c", "A", "b", "D"]|sort) }}')
         assert tmpl.render() == "AbcD"
 
-    def test_sort3(self, env):
+    @staticmethod
+    def test_sort3(env):
         tmpl = env.from_string("""{{ ['foo', 'Bar', 'blah']|sort }}""")
         assert tmpl.render() == "['Bar', 'blah', 'foo']"
 
-    def test_sort4(self, env):
+    @staticmethod
+    def test_sort4(env):
         tmpl = env.from_string("""{{ items|sort(attribute='value')|join }}""")
         assert tmpl.render(items=map(Magic, [3, 2, 4, 1])) == "1234"
 
-    def test_sort5(self, env):
+    @staticmethod
+    def test_sort5(env):
         tmpl = env.from_string("""{{ items|sort(attribute='value.0')|join }}""")
         assert tmpl.render(items=map(Magic, [[3], [2], [4], [1]])) == "[1][2][3][4]"
 
-    def test_sort6(self, env):
+    @staticmethod
+    def test_sort6(env):
         tmpl = env.from_string("""{{ items|sort(attribute='value1,value2')|join }}""")
         assert (
             tmpl.render(
@@ -465,7 +514,8 @@ class TestFilter:
             == "(2,1)(2,2)(2,5)(3,1)"
         )
 
-    def test_sort7(self, env):
+    @staticmethod
+    def test_sort7(env):
         tmpl = env.from_string("""{{ items|sort(attribute='value2,value1')|join }}""")
         assert (
             tmpl.render(
@@ -476,7 +526,8 @@ class TestFilter:
             == "(2,1)(3,1)(2,2)(2,5)"
         )
 
-    def test_sort8(self, env):
+    @staticmethod
+    def test_sort8(env):
         tmpl = env.from_string(
             """{{ items|sort(attribute='value1.0,value2.0')|join }}"""
         )
@@ -490,15 +541,18 @@ class TestFilter:
             == "([2],[1])([2],[2])([2],[5])([3],[1])"
         )
 
-    def test_unique(self, env):
+    @staticmethod
+    def test_unique(env):
         t = env.from_string('{{ "".join(["b", "A", "a", "b"]|unique) }}')
         assert t.render() == "bA"
 
-    def test_unique_case_sensitive(self, env):
+    @staticmethod
+    def test_unique_case_sensitive(env):
         t = env.from_string('{{ "".join(["b", "A", "a", "b"]|unique(true)) }}')
         assert t.render() == "bAa"
 
-    def test_unique_attribute(self, env):
+    @staticmethod
+    def test_unique_attribute(env):
         t = env.from_string("{{ items|unique(attribute='value')|join }}")
         assert t.render(items=map(Magic, [3, 2, 4, 1, 2])) == "3241"
 
@@ -518,11 +572,13 @@ class TestFilter:
         assert t.render() == expect
 
     @pytest.mark.parametrize("name,expect", (("min", "1"), ("max", "9"),))
-    def test_min_max_attribute(self, env, name, expect):
+    @staticmethod
+    def test_min_max_attribute(env, name, expect):
         t = env.from_string("{{ items|" + name + '(attribute="value") }}')
         assert t.render(items=map(Magic, [5, 1, 9])) == expect
 
-    def test_groupby(self, env):
+    @staticmethod
+    def test_groupby(env):
         tmpl = env.from_string(
             """
         {%- for grouper, list in [{'foo': 1, 'bar': 2},
@@ -534,7 +590,8 @@ class TestFilter:
         )
         assert tmpl.render().split("|") == ["1: 1, 2: 1, 1", "2: 2, 3", "3: 3, 4", ""]
 
-    def test_groupby_tuple_index(self, env):
+    @staticmethod
+    def test_groupby_tuple_index(env):
         tmpl = env.from_string(
             """
         {%- for grouper, list in [('a', 1), ('a', 2), ('b', 1)]|groupby(0) -%}
@@ -543,7 +600,8 @@ class TestFilter:
         )
         assert tmpl.render() == "a:1:2|b:1|"
 
-    def test_groupby_multidot(self, env):
+    @staticmethod
+    def test_groupby_multidot(env):
         Date = namedtuple("Date", "day,month,year")
         Article = namedtuple("Article", "title,date")
         articles = [
@@ -564,13 +622,15 @@ class TestFilter:
             "",
         ]
 
-    def test_filtertag(self, env):
+    @staticmethod
+    def test_filtertag(env):
         tmpl = env.from_string(
             "{% filter upper|replace('FOO', 'foo') %}foobar{% endfilter %}"
         )
         assert tmpl.render() == "fooBAR"
 
-    def test_replace(self, env):
+    @staticmethod
+    def test_replace(env):
         env = Environment()
         tmpl = env.from_string('{{ string|replace("o", 42) }}')
         assert tmpl.render(string="<foo>") == "<f4242>"
@@ -582,11 +642,13 @@ class TestFilter:
         tmpl = env.from_string('{{ string|replace("o", ">x<") }}')
         assert tmpl.render(string=Markup("foo")) == "f&gt;x&lt;&gt;x&lt;"
 
-    def test_forceescape(self, env):
+    @staticmethod
+    def test_forceescape(env):
         tmpl = env.from_string("{{ x|forceescape }}")
         assert tmpl.render(x=Markup("<div />")) == "&lt;div /&gt;"
 
-    def test_safe(self, env):
+    @staticmethod
+    def test_safe(env):
         env = Environment(autoescape=True)
         tmpl = env.from_string('{{ "<div>foo</div>"|safe }}')
         assert tmpl.render() == "<div>foo</div>"
@@ -611,16 +673,19 @@ class TestFilter:
         t = e.from_string("{{ value|urlencode }}")
         assert t.render(value=value) == expect
 
-    def test_simple_map(self, env):
+    @staticmethod
+    def test_simple_map(env):
         env = Environment()
         tmpl = env.from_string('{{ ["1", "2", "3"]|map("int")|sum }}')
         assert tmpl.render() == "6"
 
-    def test_map_sum(self, env):
+    @staticmethod
+    def test_map_sum(env):
         tmpl = env.from_string('{{ [[1,2], [3], [4,5,6]]|map("sum")|list }}')
         assert tmpl.render() == "[3, 3, 15]"
 
-    def test_attribute_map(self, env):
+    @staticmethod
+    def test_attribute_map(env):
         User = namedtuple("User", "name")
         env = Environment()
         users = [
@@ -631,12 +696,14 @@ class TestFilter:
         tmpl = env.from_string('{{ users|map(attribute="name")|join("|") }}')
         assert tmpl.render(users=users) == "john|jane|mike"
 
-    def test_empty_map(self, env):
+    @staticmethod
+    def test_empty_map(env):
         env = Environment()
         tmpl = env.from_string('{{ none|map("upper")|list }}')
         assert tmpl.render() == "[]"
 
-    def test_map_default(self, env):
+    @staticmethod
+    def test_map_default(env):
         Fullname = namedtuple("Fullname", "firstname,lastname")
         Firstname = namedtuple("Firstname", "firstname")
         env = Environment()
@@ -651,27 +718,32 @@ class TestFilter:
         ]
         assert tmpl.render(users=users) == "lennon, edwards, None, smith"
 
-    def test_simple_select(self, env):
+    @staticmethod
+    def test_simple_select(env):
         env = Environment()
         tmpl = env.from_string('{{ [1, 2, 3, 4, 5]|select("odd")|join("|") }}')
         assert tmpl.render() == "1|3|5"
 
-    def test_bool_select(self, env):
+    @staticmethod
+    def test_bool_select(env):
         env = Environment()
         tmpl = env.from_string('{{ [none, false, 0, 1, 2, 3, 4, 5]|select|join("|") }}')
         assert tmpl.render() == "1|2|3|4|5"
 
-    def test_simple_reject(self, env):
+    @staticmethod
+    def test_simple_reject(env):
         env = Environment()
         tmpl = env.from_string('{{ [1, 2, 3, 4, 5]|reject("odd")|join("|") }}')
         assert tmpl.render() == "2|4"
 
-    def test_bool_reject(self, env):
+    @staticmethod
+    def test_bool_reject(env):
         env = Environment()
         tmpl = env.from_string('{{ [none, false, 0, 1, 2, 3, 4, 5]|reject|join("|") }}')
         assert tmpl.render() == "None|False|0"
 
-    def test_simple_select_attr(self, env):
+    @staticmethod
+    def test_simple_select_attr(env):
         User = namedtuple("User", "name,is_active")
         env = Environment()
         users = [
@@ -684,7 +756,8 @@ class TestFilter:
         )
         assert tmpl.render(users=users) == "john|jane"
 
-    def test_simple_reject_attr(self, env):
+    @staticmethod
+    def test_simple_reject_attr(env):
         User = namedtuple("User", "name,is_active")
         env = Environment()
         users = [
@@ -697,7 +770,8 @@ class TestFilter:
         )
         assert tmpl.render(users=users) == "mike"
 
-    def test_func_select_attr(self, env):
+    @staticmethod
+    def test_func_select_attr(env):
         User = namedtuple("User", "id,name")
         env = Environment()
         users = [
@@ -710,7 +784,8 @@ class TestFilter:
         )
         assert tmpl.render(users=users) == "john|mike"
 
-    def test_func_reject_attr(self, env):
+    @staticmethod
+    def test_func_reject_attr(env):
         User = namedtuple("User", "id,name")
         env = Environment()
         users = [
@@ -723,7 +798,8 @@ class TestFilter:
         )
         assert tmpl.render(users=users) == "jane"
 
-    def test_json_dump(self):
+    @staticmethod
+    def test_json_dump():
         env = Environment(autoescape=True)
         t = env.from_string("{{ x|tojson }}")
         assert t.render(x={"foo": "bar"}) == '{"foo": "bar"}'
@@ -738,7 +814,8 @@ class TestFilter:
         env.policies["json.dumps_kwargs"] = {"foo": "bar"}
         assert t.render(x=23) == "42"
 
-    def test_wordwrap(self, env):
+    @staticmethod
+    def test_wordwrap(env):
         env.newline_sequence = "\n"
         t = env.from_string("{{ s|wordwrap(20) }}")
         result = t.render(s="Hello!\nThis is Jinja saying something.")

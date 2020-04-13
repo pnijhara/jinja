@@ -113,7 +113,8 @@ class ExampleExtension(Extension):
             ]
         ).set_lineno(next(parser.stream).lineno)
 
-    def _dump(self, sandboxed, ext_attr, imported_object, context):
+    @staticmethod
+    def _dump(sandboxed, ext_attr, imported_object, context):
         return (
             f"{sandboxed}|{ext_attr}|{imported_object}|{context.blocks}"
             f"|{context.get('test_var')}"
@@ -137,7 +138,8 @@ class StreamFilterExtension(Extension):
             else:
                 yield token
 
-    def interpolate(self, token):
+    @staticmethod
+    def interpolate(token):
         pos = 0
         end = len(token.value)
         lineno = token.lineno
@@ -161,13 +163,15 @@ class StreamFilterExtension(Extension):
 
 
 class TestExtensions:
-    def test_extend_late(self):
+    @staticmethod
+    def test_extend_late():
         env = Environment()
         env.add_extension("jinja2.ext.autoescape")
         t = env.from_string('{% autoescape true %}{{ "<test>" }}{% endautoescape %}')
         assert t.render() == "&lt;test&gt;"
 
-    def test_loop_controls(self):
+    @staticmethod
+    def test_loop_controls():
         env = Environment(extensions=["jinja2.ext.loopcontrols"])
 
         tmpl = env.from_string(
@@ -188,7 +192,8 @@ class TestExtensions:
         )
         assert tmpl.render() == "12"
 
-    def test_do(self):
+    @staticmethod
+    def test_do():
         env = Environment(extensions=["jinja2.ext.do"])
         tmpl = env.from_string(
             """
@@ -199,46 +204,54 @@ class TestExtensions:
         )
         assert tmpl.render() == "0f, 1o, 2o"
 
-    def test_extension_nodes(self):
+    @staticmethod
+    def test_extension_nodes():
         env = Environment(extensions=[ExampleExtension])
         tmpl = env.from_string("{% test %}")
         assert tmpl.render() == "False|42|23|{}|None"
 
-    def test_contextreference_node_passes_context(self):
+    @staticmethod
+    def test_contextreference_node_passes_context():
         env = Environment(extensions=[ExampleExtension])
         tmpl = env.from_string('{% set test_var="test_content" %}{% test %}')
         assert tmpl.render() == "False|42|23|{}|test_content"
 
-    def test_contextreference_node_can_pass_locals(self):
+    @staticmethod
+    def test_contextreference_node_can_pass_locals():
         env = Environment(extensions=[DerivedExampleExtension])
         tmpl = env.from_string(
             '{% for test_var in ["test_content"] %}{% test %}{% endfor %}'
         )
         assert tmpl.render() == "False|42|23|{}|test_content"
 
-    def test_identifier(self):
+    @staticmethod
+    def test_identifier():
         assert ExampleExtension.identifier == __name__ + ".ExampleExtension"
 
-    def test_rebinding(self):
+    @staticmethod
+    def test_rebinding():
         original = Environment(extensions=[ExampleExtension])
         overlay = original.overlay()
         for env in original, overlay:
             for ext in env.extensions.values():
                 assert ext.environment is env
 
-    def test_preprocessor_extension(self):
+    @staticmethod
+    def test_preprocessor_extension():
         env = Environment(extensions=[PreprocessorExtension])
         tmpl = env.from_string("{[[TEST]]}")
         assert tmpl.render(foo=42) == "{(42)}"
 
-    def test_streamfilter_extension(self):
+    @staticmethod
+    def test_streamfilter_extension():
         env = Environment(extensions=[StreamFilterExtension])
         env.globals["gettext"] = lambda x: x.upper()
         tmpl = env.from_string("Foo _(bar) Baz")
         out = tmpl.render()
         assert out == "Foo BAR Baz"
 
-    def test_extension_ordering(self):
+    @staticmethod
+    def test_extension_ordering():
         class T1(Extension):
             priority = 1
 
@@ -250,7 +263,8 @@ class TestExtensions:
         assert ext[0].__class__ is T1
         assert ext[1].__class__ is T2
 
-    def test_debug(self):
+    @staticmethod
+    def test_debug():
         env = Environment(extensions=["jinja2.ext.debug"])
         t = env.from_string("Hello\n{% debug %}\nGoodbye")
         out = t.render()
@@ -260,16 +274,19 @@ class TestExtensions:
 
 
 class TestInternationalization:
-    def test_trans(self):
+    @staticmethod
+    def test_trans():
         tmpl = i18n_env.get_template("child.html")
         assert tmpl.render(LANGUAGE="de") == "<title>fehlend</title>pass auf"
 
-    def test_trans_plural(self):
+    @staticmethod
+    def test_trans_plural():
         tmpl = i18n_env.get_template("plural.html")
         assert tmpl.render(LANGUAGE="de", user_count=1) == "Ein Benutzer online"
         assert tmpl.render(LANGUAGE="de", user_count=2) == "2 Benutzer online"
 
-    def test_trans_plural_with_functions(self):
+    @staticmethod
+    def test_trans_plural_with_functions():
         tmpl = i18n_env.get_template("plural2.html")
 
         def get_user_count():
@@ -280,7 +297,8 @@ class TestInternationalization:
         assert tmpl.render(LANGUAGE="de", get_user_count=get_user_count) == "1s"
         assert get_user_count.called == 1
 
-    def test_complex_plural(self):
+    @staticmethod
+    def test_complex_plural():
         tmpl = i18n_env.from_string(
             "{% trans foo=42, count=2 %}{{ count }} item{% "
             "pluralize count %}{{ count }} items{% endtrans %}"
@@ -292,36 +310,42 @@ class TestInternationalization:
             "{% trans foo %}...{% pluralize bar %}...{% endtrans %}",
         )
 
-    def test_trans_stringformatting(self):
+    @staticmethod
+    def test_trans_stringformatting():
         tmpl = i18n_env.get_template("stringformat.html")
         assert tmpl.render(LANGUAGE="de", user_count=5) == "Benutzer: 5"
 
-    def test_trimmed(self):
+    @staticmethod
+    def test_trimmed():
         tmpl = i18n_env.from_string(
             "{%- trans trimmed %}  hello\n  world  {% endtrans -%}"
         )
         assert tmpl.render() == "hello world"
 
-    def test_trimmed_policy(self):
+    @staticmethod
+    def test_trimmed_policy():
         s = "{%- trans %}  hello\n  world  {% endtrans -%}"
         tmpl = i18n_env.from_string(s)
         trimmed_tmpl = i18n_env_trimmed.from_string(s)
         assert tmpl.render() == "  hello\n  world  "
         assert trimmed_tmpl.render() == "hello world"
 
-    def test_trimmed_policy_override(self):
+    @staticmethod
+    def test_trimmed_policy_override():
         tmpl = i18n_env_trimmed.from_string(
             "{%- trans notrimmed %}  hello\n  world  {% endtrans -%}"
         )
         assert tmpl.render() == "  hello\n  world  "
 
-    def test_trimmed_vars(self):
+    @staticmethod
+    def test_trimmed_vars():
         tmpl = i18n_env.from_string(
             '{%- trans trimmed x="world" %}  hello\n  {{ x }} {% endtrans -%}'
         )
         assert tmpl.render() == "hello world"
 
-    def test_trimmed_varname_trimmed(self):
+    @staticmethod
+    def test_trimmed_varname_trimmed():
         # unlikely variable name, but when used as a variable
         # it should not enable trimming
         tmpl = i18n_env.from_string(
@@ -329,7 +353,8 @@ class TestInternationalization:
         )
         assert tmpl.render() == "  hello\n  world  "
 
-    def test_extract(self):
+    @staticmethod
+    def test_extract():
         from jinja2.ext import babel_extract
 
         source = BytesIO(
@@ -345,7 +370,8 @@ class TestInternationalization:
             (4, "ngettext", ("%(users)s user", "%(users)s users", None), []),
         ]
 
-    def test_extract_trimmed(self):
+    @staticmethod
+    def test_extract_trimmed():
         from jinja2.ext import babel_extract
 
         source = BytesIO(
@@ -362,7 +388,8 @@ class TestInternationalization:
             (6, "ngettext", ("%(users)s user", "%(users)s users", None), []),
         ]
 
-    def test_extract_trimmed_option(self):
+    @staticmethod
+    def test_extract_trimmed_option():
         from jinja2.ext import babel_extract
 
         source = BytesIO(
@@ -380,7 +407,8 @@ class TestInternationalization:
             (6, "ngettext", ("%(users)s user", "%(users)s users", None), []),
         ]
 
-    def test_comment_extract(self):
+    @staticmethod
+    def test_comment_extract():
         from jinja2.ext import babel_extract
 
         source = BytesIO(
@@ -402,7 +430,8 @@ class TestInternationalization:
 
 
 class TestScope:
-    def test_basic_scope_behavior(self):
+    @staticmethod
+    def test_basic_scope_behavior():
         # This is what the old with statement compiled down to
         class ScopeExt(Extension):
             tags = {"scope"}
@@ -435,16 +464,19 @@ class TestScope:
 
 
 class TestNewstyleInternationalization:
-    def test_trans(self):
+    @staticmethod
+    def test_trans():
         tmpl = newstyle_i18n_env.get_template("child.html")
         assert tmpl.render(LANGUAGE="de") == "<title>fehlend</title>pass auf"
 
-    def test_trans_plural(self):
+    @staticmethod
+    def test_trans_plural():
         tmpl = newstyle_i18n_env.get_template("plural.html")
         assert tmpl.render(LANGUAGE="de", user_count=1) == "Ein Benutzer online"
         assert tmpl.render(LANGUAGE="de", user_count=2) == "2 Benutzer online"
 
-    def test_complex_plural(self):
+    @staticmethod
+    def test_complex_plural():
         tmpl = newstyle_i18n_env.from_string(
             "{% trans foo=42, count=2 %}{{ count }} item{% "
             "pluralize count %}{{ count }} items{% endtrans %}"
@@ -456,16 +488,19 @@ class TestNewstyleInternationalization:
             "{% trans foo %}...{% pluralize bar %}...{% endtrans %}",
         )
 
-    def test_trans_stringformatting(self):
+    @staticmethod
+    def test_trans_stringformatting():
         tmpl = newstyle_i18n_env.get_template("stringformat.html")
         assert tmpl.render(LANGUAGE="de", user_count=5) == "Benutzer: 5"
 
-    def test_newstyle_plural(self):
+    @staticmethod
+    def test_newstyle_plural():
         tmpl = newstyle_i18n_env.get_template("ngettext.html")
         assert tmpl.render(LANGUAGE="de", apples=1) == "1 Apfel"
         assert tmpl.render(LANGUAGE="de", apples=5) == "5 Äpfel"
 
-    def test_autoescape_support(self):
+    @staticmethod
+    def test_autoescape_support():
         env = Environment(extensions=["jinja2.ext.autoescape", "jinja2.ext.i18n"])
         env.install_gettext_callables(
             lambda x: "<strong>Wert: %(name)s</strong>",
@@ -479,7 +514,8 @@ class TestNewstyleInternationalization:
         assert t.render(ae=True) == "<strong>Wert: &lt;test&gt;</strong>"
         assert t.render(ae=False) == "<strong>Wert: <test></strong>"
 
-    def test_autoescape_macros(self):
+    @staticmethod
+    def test_autoescape_macros():
         env = Environment(autoescape=False, extensions=["jinja2.ext.autoescape"])
         template = (
             "{% macro m() %}<html>{% endmacro %}"
@@ -487,11 +523,13 @@ class TestNewstyleInternationalization:
         )
         assert env.from_string(template).render() == "<html>"
 
-    def test_num_used_twice(self):
+    @staticmethod
+    def test_num_used_twice():
         tmpl = newstyle_i18n_env.get_template("ngettext_long.html")
         assert tmpl.render(apples=5, LANGUAGE="de") == "5 Äpfel"
 
-    def test_num_called_num(self):
+    @staticmethod
+    def test_num_called_num():
         source = newstyle_i18n_env.compile(
             """
             {% trans num=3 %}{{ num }} apple{% pluralize
@@ -508,7 +546,8 @@ class TestNewstyleInternationalization:
             is not None
         )
 
-    def test_trans_vars(self):
+    @staticmethod
+    def test_trans_vars():
         t1 = newstyle_i18n_env.get_template("transvars1.html")
         t2 = newstyle_i18n_env.get_template("transvars2.html")
         t3 = newstyle_i18n_env.get_template("transvars3.html")
@@ -516,7 +555,8 @@ class TestNewstyleInternationalization:
         assert t2.render(count=23, LANGUAGE="de") == "Benutzer: 23"
         assert t3.render(num=42, LANGUAGE="de") == "Benutzer: 42"
 
-    def test_novars_vars_escaping(self):
+    @staticmethod
+    def test_novars_vars_escaping():
         t = newstyle_i18n_env.get_template("novars.html")
         assert t.render() == "%(hello)s"
         t = newstyle_i18n_env.get_template("vars.html")
@@ -526,7 +566,8 @@ class TestNewstyleInternationalization:
 
 
 class TestAutoEscape:
-    def test_scoped_setting(self):
+    @staticmethod
+    def test_scoped_setting():
         env = Environment(extensions=["jinja2.ext.autoescape"], autoescape=True)
         tmpl = env.from_string(
             """
@@ -559,7 +600,8 @@ class TestAutoEscape:
             "<HelloWorld>",
         ]
 
-    def test_nonvolatile(self):
+    @staticmethod
+    def test_nonvolatile():
         env = Environment(extensions=["jinja2.ext.autoescape"], autoescape=True)
         tmpl = env.from_string('{{ {"foo": "<test>"}|xmlattr|escape }}')
         assert tmpl.render() == ' foo="&lt;test&gt;"'
@@ -569,7 +611,8 @@ class TestAutoEscape:
         )
         assert tmpl.render() == " foo=&#34;&amp;lt;test&amp;gt;&#34;"
 
-    def test_volatile(self):
+    @staticmethod
+    def test_volatile():
         env = Environment(extensions=["jinja2.ext.autoescape"], autoescape=True)
         tmpl = env.from_string(
             '{% autoescape foo %}{{ {"foo": "<test>"}'
@@ -578,7 +621,8 @@ class TestAutoEscape:
         assert tmpl.render(foo=False) == " foo=&#34;&amp;lt;test&amp;gt;&#34;"
         assert tmpl.render(foo=True) == ' foo="&lt;test&gt;"'
 
-    def test_scoping(self):
+    @staticmethod
+    def test_scoping():
         env = Environment(extensions=["jinja2.ext.autoescape"])
         tmpl = env.from_string(
             '{% autoescape true %}{% set x = "<x>" %}{{ x }}'
@@ -586,7 +630,8 @@ class TestAutoEscape:
         )
         assert tmpl.render(x=1) == "&lt;x&gt;1<y>"
 
-    def test_volatile_scoping(self):
+    @staticmethod
+    def test_volatile_scoping():
         env = Environment(extensions=["jinja2.ext.autoescape"])
         tmplsource = """
         {% autoescape val %}
@@ -611,7 +656,8 @@ class TestAutoEscape:
         pysource = env.compile(tmplsource, raw=True)
         assert "&lt;testing&gt;\\n" in pysource
 
-    def test_overlay_scopes(self):
+    @staticmethod
+    def test_overlay_scopes():
         class MagicScopeExtension(Extension):
             tags = {"overlay"}
 
@@ -623,7 +669,8 @@ class TestAutoEscape:
                 node.context = self.call_method("get_scope")
                 return node
 
-            def get_scope(self):
+            @staticmethod
+            def get_scope():
                 return {"x": [1, 2, 3]}
 
         env = Environment(extensions=[MagicScopeExtension])
