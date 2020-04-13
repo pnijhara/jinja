@@ -49,8 +49,10 @@ class NodeType(type):
             storage = []
             storage.extend(getattr(bases[0] if bases else object, attr, ()))
             storage.extend(d.get(attr, ()))
-            assert len(bases) <= 1, "multiple inheritance not allowed"
-            assert len(storage) == len(set(storage)), "layout conflict"
+            if len(bases) > 1:
+                raise AssertionError("multiple inheritance not allowed")
+            if len(storage) != len(set(storage)):
+                raise AssertionError("layout conflict")
             d[attr] = tuple(storage)
         d.setdefault("abstract", False)
         return type.__new__(mcs, name, bases, d)
